@@ -1,8 +1,6 @@
 # <SITE_BASE_BRAND_URL>
 
-search base url: `<URL>`
-
-search makeup: `<BASE_URL><SEARCH_TERM>+<FILER_ARGS>`
+search base url: `<BASE_URL><SEARCH_TERM>+<FILER_ARGS>`
 
 ## search term
 // details
