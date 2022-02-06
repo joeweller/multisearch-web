@@ -1,6 +1,6 @@
 # toolstation.com
 
-category: tools
+category: hardware
 
 URL makeup: `https://www.toolstation.com/search?q=<SEARCH_TERM>`
 
