@@ -15,36 +15,45 @@
 
       var processSearch = (event) => {
         let term = searchNode.value;
-        let data = siteData[event.target.id];
+        let siteConfig = siteData[event.target.id];
+        if (term !== undefined && term.length && siteConfig !== undefined) {
+          window.open(
+            siteConfig["url"].replace(
+              "{!TERM}",
+              transformTerm(term, siteConfig)
+            ),
+            "_blank"
+          );
+        }
+      };
 
+      var transformTerm = (term, siteConfig) => {
         // pre-transform
-        Object.getOwnPropertyNames(data["preTransformMap"]).forEach((char) => {
-          term = term.replaceAll(char, data["preTransformMap"][char]);
-        });
+        Object.getOwnPropertyNames(siteConfig["preTransformMap"]).forEach(
+          (char) => {
+            term = term.replaceAll(char, siteConfig["preTransformMap"][char]);
+          }
+        );
         //console.log(term);
 
         // post-transform
         if (
-          data["postTransformFunc"] !== undefined &&
-          data["postTransformFunc"].length
+          siteConfig["postTransformFunc"] !== undefined &&
+          siteConfig["postTransformFunc"].length
         ) {
-          switch (data["postTransformFunc"]) {
+          switch (siteConfig["postTransformFunc"]) {
             case "URLENCODE":
               term = encodeURIComponent(term);
               break;
           }
         }
-
-        let url = data["url"].replace("{!TERM}", term);
-        //console.log(url);
-
-        window.open(url, "_blank");
+        return term;
       };
 
       var init = () => {
         console.log(`Document is ready!`);
         Object.getOwnPropertyNames(siteData).forEach((siteId) => {
-          let ele = document.createElement("div");
+          let ele = document.createElement("span");
           ele.innerText = siteData[siteId].brand;
           ele.id = siteId;
           ele.addEventListener("click", processSearch);
