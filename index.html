@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <header>
+    <title>multisearch</title>
+    <script type="text/javascript" src="./siteData.js"></script>
+  </header>
+  <body>
+    <div>
+      <input id="search" type="text" />
+    </div>
+    <div id="sites"></div>
+    <script>
+      var searchNode = document.getElementById("search");
+      var sitesNode = document.getElementById("sites");
+
+      var processSearch = (event) => {
+        let term = searchNode.value;
+        console.log(term);
+        console.log(event.target.id);
+        let data = siteData[event.target.id];
+
+        // pre-transform
+        Object.getOwnPropertyNames(data["preTransformMap"]).forEach((char) => {
+          term = term.replaceAll(char, data["preTransformMap"][char]);
+        });
+        console.log(term);
+
+        // post-transform
+        if (
+          data["postTransformFunc"] !== undefined &&
+          data["postTransformFunc"].length
+        ) {
+          switch (data["postTransformFunc"]) {
+            case "URLENCODE":
+              term = encodeURI(term);
+              break;
+          }
+        }
+
+        let url = data["url"].replace("{!TERM}", term);
+        console.log(url);
+
+        //window.open(url, "_blank");
+      };
+
+      var init = () => {
+        console.log(`Document is ready!`);
+        Object.getOwnPropertyNames(siteData).forEach((siteId) => {
+          let ele = document.createElement("div");
+          ele.innerText = siteId;
+          ele.id = siteId;
+          ele.addEventListener("click", processSearch);
+          sitesNode.appendChild(ele);
+        });
+      };
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", init());
+    </script>
+  </body>
+</html>
