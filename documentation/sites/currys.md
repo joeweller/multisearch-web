@@ -1,6 +1,6 @@
 # currys.co.uk
 
-category: tech
+category: general
 
 search base url: `https://www.currys.co.uk/search?q=<SEARCH_TERM>`
 
