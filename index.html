@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html>
   <header>
+    <style>
+      span + span {
+        margin-left: 2em;
+      }
+      span {
+        cursor: pointer;
+      }
+    </style>
     <title>multisearch</title>
     <script type="text/javascript" src="./siteData.js"></script>
   </header>
@@ -10,6 +18,17 @@
     </div>
     <div id="sites"></div>
     <script>
+      let categories = [
+        "general",
+        "home",
+        "fashion",
+        "beauty",
+        "entertainment",
+        "hardware",
+        "health",
+        "technology",
+      ];
+
       var searchNode = document.getElementById("search");
       var sitesNode = document.getElementById("sites");
 
@@ -52,12 +71,37 @@
 
       var init = () => {
         console.log(`Document is ready!`);
-        Object.getOwnPropertyNames(siteData).forEach((siteId) => {
-          let ele = document.createElement("span");
-          ele.innerText = siteData[siteId].brand;
-          ele.id = siteId;
-          ele.addEventListener("click", processSearch);
-          sitesNode.appendChild(ele);
+        let categorySitesMap = {};
+        Object.getOwnPropertyNames(siteData).forEach((siteConfigId) => {
+          siteData[siteConfigId]["categories"].forEach((category) => {
+            if (categorySitesMap[category] === undefined) {
+              categorySitesMap[category] = [];
+            }
+            categorySitesMap[category].push(siteConfigId);
+          });
+        });
+
+        categories.forEach((category) => {
+          let categoryTextNode = document.createElement("h2");
+          categoryTextNode.innerText = category;
+
+          let categoryNode = document.createElement("div");
+          categoryNode.id = category;
+          categoryNode.appendChild(categoryTextNode);
+
+          if (
+            categorySitesMap[category] !== undefined &&
+            categorySitesMap[category].length
+          ) {
+            categorySitesMap[category].sort().forEach((siteId) => {
+              let ele = document.createElement("span");
+              ele.innerText = siteData[siteId].brand;
+              ele.id = siteId;
+              ele.addEventListener("click", processSearch);
+              categoryNode.appendChild(ele);
+            });
+            sitesNode.appendChild(categoryNode);
+          }
         });
       };
     </script>
