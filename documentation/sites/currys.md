@@ -1,5 +1,7 @@
 # currys.co.uk
 
+category: tech
+
 search base url: `https://www.currys.co.uk/search?q=<SEARCH_TERM>`
 
 ## search term
