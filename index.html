@@ -15,15 +15,13 @@
 
       var processSearch = (event) => {
         let term = searchNode.value;
-        console.log(term);
-        console.log(event.target.id);
         let data = siteData[event.target.id];
 
         // pre-transform
         Object.getOwnPropertyNames(data["preTransformMap"]).forEach((char) => {
           term = term.replaceAll(char, data["preTransformMap"][char]);
         });
-        console.log(term);
+        //console.log(term);
 
         // post-transform
         if (
@@ -32,22 +30,22 @@
         ) {
           switch (data["postTransformFunc"]) {
             case "URLENCODE":
-              term = encodeURI(term);
+              term = encodeURIComponent(term);
               break;
           }
         }
 
         let url = data["url"].replace("{!TERM}", term);
-        console.log(url);
+        //console.log(url);
 
-        //window.open(url, "_blank");
+        window.open(url, "_blank");
       };
 
       var init = () => {
         console.log(`Document is ready!`);
         Object.getOwnPropertyNames(siteData).forEach((siteId) => {
           let ele = document.createElement("div");
-          ele.innerText = siteId;
+          ele.innerText = siteData[siteId].brand;
           ele.id = siteId;
           ele.addEventListener("click", processSearch);
           sitesNode.appendChild(ele);
