@@ -8,15 +8,38 @@
       span {
         cursor: pointer;
       }
+      input[type="checkbox"] {
+        margin-left: 2em;
+      }
+      input[type="text"] {
+        height: 50;
+        width: 100%;
+        margin: 20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        font-size: 30px;
+        flex: auto;
+      }
+      body {
+        padding: 20px;
+      }
+      fieldset {
+        border-radius: 5px;
+        border-style: solid;
+        border-color: grey;
+      }
     </style>
     <title>multisearch</title>
     <script type="text/javascript" src="./siteData.js"></script>
   </header>
   <body>
     <div>
-      <input id="search" type="text" />
+      <input id="search" type="text" placeholder="keywords" />
     </div>
-    <div id="sites"></div>
+    <div id="categorySelection">
+      <fieldset></fieldset>
+    </div>
+    <div id="categories"></div>
     <script>
       let categories = [
         "general",
@@ -29,10 +52,40 @@
         "technology",
       ];
 
-      var searchNode = document.getElementById("search");
-      var sitesNode = document.getElementById("sites");
+      const searchNode = document.getElementById("search");
+      const categoriesNode = document.getElementById("categories");
+      const categorySelectionParentNode =
+        document.getElementById("categorySelection").children[0];
+      const categorySitesMap = {};
 
-      var processSearch = (event) => {
+      const init = () => {
+        populateCategorySitesMap();
+
+        categories.forEach((category) => {
+          // append category selection
+          createCategoryCheckbox(
+            categorySelectionParentNode,
+            category,
+            categorySitesMap[category].length
+          );
+
+          // append category section
+          createCategorySection(categoriesNode, categorySitesMap, category);
+        });
+      };
+
+      const populateCategorySitesMap = () => {
+        Object.getOwnPropertyNames(siteData).forEach((siteConfigId) => {
+          siteData[siteConfigId]["categories"].forEach((category) => {
+            if (categorySitesMap[category] === undefined) {
+              categorySitesMap[category] = [];
+            }
+            categorySitesMap[category].push(siteConfigId);
+          });
+        });
+      };
+
+      const processSearch = (event) => {
         let term = searchNode.value;
         let siteConfig = siteData[event.target.id];
         if (term !== undefined && term.length && siteConfig !== undefined) {
@@ -46,14 +99,13 @@
         }
       };
 
-      var transformTerm = (term, siteConfig) => {
+      const transformTerm = (term, siteConfig) => {
         // pre-transform
         Object.getOwnPropertyNames(siteConfig["preTransformMap"]).forEach(
           (char) => {
             term = term.replaceAll(char, siteConfig["preTransformMap"][char]);
           }
         );
-        //console.log(term);
 
         // post-transform
         if (
@@ -69,40 +121,76 @@
         return term;
       };
 
-      var init = () => {
-        console.log(`Document is ready!`);
-        let categorySitesMap = {};
-        Object.getOwnPropertyNames(siteData).forEach((siteConfigId) => {
-          siteData[siteConfigId]["categories"].forEach((category) => {
-            if (categorySitesMap[category] === undefined) {
-              categorySitesMap[category] = [];
-            }
-            categorySitesMap[category].push(siteConfigId);
+      const createCategoryCheckbox = (parentNode, category, size) => {
+        let categorySelectNode = document.createElement("input");
+        categorySelectNode.type = "checkbox";
+        categorySelectNode.value = category;
+        categorySelectNode.id = `${category}_chkbx`;
+        categorySelectNode.addEventListener(
+          "click",
+          calculateDisplayedCategories
+        );
+        parentNode.appendChild(categorySelectNode);
+
+        let categoryLabelNode = document.createElement("label");
+        categoryLabelNode.type = "checkbox";
+        categoryLabelNode.setAttribute("for", `${category}_chkbx`);
+        categoryLabelNode.innerText = `${capitalizeString(category)} (${
+          size || 0
+        })`;
+        parentNode.appendChild(categoryLabelNode);
+      };
+
+      const createCategorySection = (
+        parentNode,
+        categorySitesMap,
+        category
+      ) => {
+        let categoryTextNode = document.createElement("h2");
+        categoryTextNode.innerText = capitalizeString(category);
+
+        let categoryNode = document.createElement("div");
+        categoryNode.id = category;
+        categoryNode.style = "display: none";
+        categoryNode.appendChild(categoryTextNode);
+
+        if (
+          categorySitesMap[category] !== undefined &&
+          categorySitesMap[category].length
+        ) {
+          categorySitesMap[category].sort().forEach((siteId) => {
+            let ele = document.createElement("span");
+            ele.innerText = siteData[siteId].brand;
+            ele.id = siteId;
+            ele.addEventListener("click", processSearch);
+            categoryNode.appendChild(ele);
           });
-        });
+          parentNode.appendChild(categoryNode);
+        }
+      };
 
-        categories.forEach((category) => {
-          let categoryTextNode = document.createElement("h2");
-          categoryTextNode.innerText = category;
+      const calculateDisplayedCategories = (event) => {
+        console.log(categorySelectionParentNode.querySelectorAll("input"));
+        categorySelectionParentNode
+          .querySelectorAll("input")
+          .forEach((checkbox) => {
+            console.log(checkbox.value);
+            let categoryNode = document.getElementById(checkbox.value);
+            console.log(categoryNode.getAttribute("style"));
+            if (checkbox.checked) {
+              if (categoryNode.style.display == "none") {
+                categoryNode.style.display = "block";
+              }
+            } else {
+              categoryNode.style.display = "none";
+            }
+          });
+        //console.log(categorySelectionParentNode.childNodes);
+        //console.log(event.target);
+      };
 
-          let categoryNode = document.createElement("div");
-          categoryNode.id = category;
-          categoryNode.appendChild(categoryTextNode);
-
-          if (
-            categorySitesMap[category] !== undefined &&
-            categorySitesMap[category].length
-          ) {
-            categorySitesMap[category].sort().forEach((siteId) => {
-              let ele = document.createElement("span");
-              ele.innerText = siteData[siteId].brand;
-              ele.id = siteId;
-              ele.addEventListener("click", processSearch);
-              categoryNode.appendChild(ele);
-            });
-            sitesNode.appendChild(categoryNode);
-          }
-        });
+      const capitalizeString = (str) => {
+        return str.charAt(0).toUpperCase() + str.slice(1);
       };
     </script>
     <script>

@@ -1,4 +1,4 @@
-var siteData = {
+const siteData = {
   "argos": {
     "categories": ["general", "technology", "home", "entertainment"],
     "brand": "argos.co.uk",
