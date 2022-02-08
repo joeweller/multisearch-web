@@ -233,7 +233,6 @@ const siteData = {
     },
     "postTransformFunc": ""
   },
-  // hardware
   "toolstation": {
     "categories": ["hardware"],
     "brand": "toolstation.com",
